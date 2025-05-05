@@ -11,6 +11,8 @@ use App\Models\Expense;
 use App\Models\Liabilitie;
 use App\Models\Category;
 
+
+
 class TrackerController extends Controller
 {
     /**
@@ -23,42 +25,49 @@ class TrackerController extends Controller
 
     public function filter(Request $request)
     {
-       $month  = $request->month;
-       $year = $request->year;
+        $month  = $request->month;
+        $year   = $request->year;
 
-       $income = Income::whereMonth('income_date', $month)
-                    ->whereYear('income_date', $year)
-                    ->get();
+        $income = Income::where('user_id', auth()->id())
+                        ->whereMonth('income_date', $month)
+                        ->whereYear('income_date', $year)
+                        ->get();
 
-    $expense = Expense::whereMonth('expense_date', $month)
-                      ->whereYear('expense_date', $year)
-                      ->get();
-
-    $liability = Liabilitie::whereMonth('liabilities_date', $month)
-                          ->whereYear('liabilities_date', $year)
+        $expense = Expense::where('user_id', auth()->id())
+                          ->whereMonth('expense_date', $month)
+                          ->whereYear('expense_date', $year)
                           ->get();
 
-    return response()->json([
-        'income' => $income,
-        'expense' => $expense,
-        'liability' => $liability,
-    ]);
+        $liability = Liabilitie::where('user_id', auth()->id())
+                                ->whereMonth('liabilities_date', $month)
+                                ->whereYear('liabilities_date', $year)
+                                ->get();
 
+        return response()->json([
+            'income' => $income,
+            'expense' => $expense,
+            'liability' => $liability,
+        ]);
     }
 
 
     public function dashboard()
     {
-        $totalIncome = Income::sum('income_amount');
-        $totalExpense = Expense::sum('expense_amount');
-        $totalLiabilitie = Liabilitie::sum('liabilities_amount');
+        $totalIncome = Income::where('user_id', auth()->id())->sum('income_amount');
+
+        $totalExpense = Expense::where('user_id', auth()->id())->sum('expense_amount');
+        //$totalExpense = Expense::sum('expense_amount');
+
+        $totalLiabilitie = Liabilitie::where('user_id' , auth()->id())->sum('liabilities_amount');
+        //$totalLiabilitie = Liabilitie::sum('liabilities_amount');
         $balance = $totalIncome - $totalExpense;
         return view('dashboard' , compact('totalIncome','totalExpense', 'totalLiabilitie', 'balance'));
     }
 
     public function income()
     {
-        $incomes = Income::latest()->get();
+
+        $incomes = Income::where('user_id', auth()->id())->latest()->get();
         //dd($incomes);
         return view('pages.income' , compact('incomes'));
 
@@ -67,14 +76,14 @@ class TrackerController extends Controller
     public function expense()
     {
 
-        $expenses = Expense::all();
+        $expenses = Expense::where('user_id' , auth()->id())->latest()->get();
         return view('pages.expense' , compact('expenses'));
     }
 
     public function liabilitie()
     {
-        $liabilities = Liabilitie::all();
 
+        $liabilities = Liabilitie::where('user_id' , auth()->id())->latest()->get();
         return view('pages.liabilities' , compact('liabilities'));
     }
 
@@ -91,22 +100,33 @@ class TrackerController extends Controller
      */
     public function storeincome(IncomeRequest $request)
     {
-        Income::create($request->only('income_name' , 'income_amount' , 'income_date'));
+        Income::create([
+            'income_name'   => $request->income_name,
+            'income_amount' => $request->income_amount,
+            'income_date'   => $request->income_date,
+            'user_id'       => auth()->id(), // Logged-in user id এখানেই পাচ্ছো
+        ]);
+
         return redirect()->back()->with('success', 'Income added successfully!');
     }
 
     public function storeexpense(ExpenseRequest $request)
     {
 
-        Expense::create($request->only('expense_name' , 'expense_amount' , 'expense_date'));
+
+        Expense::create(array_merge($request->only('expense_name', 'expense_amount', 'expense_date'),
+                  ['user_id' => auth()->id()]
+        ));
+        //Expense::create($request->only('expense_name' , 'expense_amount' , 'expense_date'));
         return redirect()->back()->with('success', 'Expense added successfully!');
     }
 
     public function storeliabilitie(LiabilitieRequest $request)
     {
 
-
-        Liabilitie::create($request->only('liabilities_name' , 'liabilities_amount' , 'liabilities_date'));
+        Liabilitie::create(array_merge($request->only('liabilities_name' , 'liabilities_amount' , 'liabilities_date'),
+            ['user_id' => auth()->id()]
+        ));
         return redirect()->back()->with('success', 'Liabilitie added successfully!');
     }
 

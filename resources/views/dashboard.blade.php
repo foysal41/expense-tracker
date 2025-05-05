@@ -90,7 +90,7 @@
         let year = $('#filterYear').val();
 
         $.ajax({
-            url: "{{ route('filter.report') }}",
+            url: "{{ route('filter.report') }}", // ✅ Blade variable
             method: "GET",
             data: {
                 month: month,
@@ -101,25 +101,37 @@
 
                 // Income Table
                 html += '<h3 class="text-lg font-semibold mt-4">Income</h3>';
-                html += '<table class="w-full border mb-4"><tr><th>Date</th><th>Amount</th></tr>';
+                html += '<table class="w-full border mb-4 text-sm">';
+                html += '<tr class="bg-gray-100"><th class="py-2 px-3 text-left">Date</th><th class="py-2 px-3 text-right">Amount</th></tr>';
                 response.income.forEach(item => {
-                    html += `<tr><td>${item.income_date}</td><td class="text-green-600 text-center">+ ${item.income_amount} Tk</td></tr>`;
+                    html += `<tr>
+                        <td class="py-1 px-3">${item.income_date}</td>
+                        <td class="py-1 px-3 text-green-600 text-right">+ ${item.income_amount} Tk</td>
+                    </tr>`;
                 });
                 html += '</table>';
 
                 // Expense Table
                 html += '<h3 class="text-lg font-semibold mt-4">Expense</h3>';
-                html += '<table class="w-full border mb-4"><tr><th>Date</th><th>Amount</th></tr>';
+                html += '<table class="w-full border mb-4 text-sm">';
+                html += '<tr class="bg-gray-100"><th class="py-2 px-3 text-left">Date</th><th class="py-2 px-3 text-right">Amount</th></tr>';
                 response.expense.forEach(item => {
-                    html += `<tr><td>${item.expense_date}</td><td class="text-red-600 text-center">- ${item.expense_amount} Tk</td></tr>`;
+                    html += `<tr>
+                        <td class="py-1 px-3">${item.expense_date}</td>
+                        <td class="py-1 px-3 text-red-600 text-right">- ${item.expense_amount} Tk</td>
+                    </tr>`;
                 });
                 html += '</table>';
 
                 // Liability Table
                 html += '<h3 class="text-lg font-semibold mt-4">Liability</h3>';
-                html += '<table class="w-full border"><tr><th>Date</th><th>Amount</th></tr>';
+                html += '<table class="w-full border text-sm">';
+                html += '<tr class="bg-gray-100"><th class="py-2 px-3 text-left">Date</th><th class="py-2 px-3 text-right">Amount</th></tr>';
                 response.liability.forEach(item => {
-                    html += `<tr><td>${item.liabilities_date}</td><td class="text-yellow-600 text-center">${item.liabilities_amount} Tk</td></tr>`;
+                    html += `<tr>
+                        <td class="py-1 px-3">${item.liabilities_date}</td>
+                        <td class="py-1 px-3 text-yellow-600 text-right">${item.liabilities_amount} Tk</td>
+                    </tr>`;
                 });
                 html += '</table>';
 
@@ -128,6 +140,7 @@
         });
     });
 </script>
+
 @endpush
 
 

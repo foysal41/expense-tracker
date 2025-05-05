@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('liabilities', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->string('liabilities_name');
             $table->decimal('liabilities_amount');
             $table->date('liabilities_date');

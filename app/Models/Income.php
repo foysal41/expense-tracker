@@ -14,7 +14,7 @@ class Income extends Model
         'income_name',
         'income_amount',
         'income_date',
-        'category_id'
+        'user_id'
 
     ];
 

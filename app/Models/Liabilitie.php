@@ -12,10 +12,9 @@ class Liabilitie extends Model
     protected $fillable = [
         'liabilities_name',
         'liabilities_amount',
-        'liabilities_date'
+        'liabilities_date',
+        'user_id'
     ];
 
-    public function category(){
-        return $this->belongsTo(Category::class);
-    }
+
 }
